@@ -1,16 +1,29 @@
-﻿# CMakeList.txt : CMake project for Firework, include source and define
-# project specific logic here.
-#
-cmake_minimum_required (VERSION 3.28)
+﻿# Устанавливаем минимально требуемую версию CMake
+cmake_minimum_required(VERSION 3.25)
 
-# Enable Hot Reload for MSVC compilers if supported.
-if (POLICY CMP0141)
-  cmake_policy(SET CMP0141 NEW)
-  set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
-endif()
+# Задаем название проекта и язык программирования
+project(Firework CXX)
 
-project ("Firework")
+# Устанавливаем стандарт языка и параметры компиляции
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
 
-# TODO: Add tests and install targets if needed.
+# Ищем установленный Git
+find_package(Git REQUIRED)
+execute_process(
+  COMMAND "${GIT_EXECUTABLE}" submodule update --init --recursive
+  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+)
 
-add_subdirectory(src)
+# Добавляем поддиректорию для SFML (исключаем из сборки)
+add_subdirectory(deps/SFML EXCLUDE_FROM_ALL)
+
+# Определяем цель приложения
+file(GLOB_RECURSE APP_SOURCES "src/*.cpp" "src/*.h")
+add_executable(app ${APP_SOURCES})
+
+# Линкуем библиотеки и указываем директории включений
+target_link_libraries(app PRIVATE sfml-graphics)
+target_include_directories(app PRIVATE src)
