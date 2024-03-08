@@ -1,5 +1,7 @@
-add_executable(
+﻿add_executable(
 	main.cpp
-	windows.cpp
-	windows.h
+	Firework.cpp
+	Firework.h
+	FireworkApp.cpp
+	FireworkApp.h
 )
