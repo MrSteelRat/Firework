@@ -1,9 +1,21 @@
+#include <sstream>  // For string manipulation
+#include <iostream>
 #include "FireworkApp.h"
 
 FireworksApp::FireworksApp(int width, int height)
     : window(sf::VideoMode(width, height), "Fireworks")
 {
   window.setFramerateLimit(60);
+
+  // Load font for displaying FPS
+  if (!font.loadFromFile("arial.ttf"))
+  {
+    std::cerr << "Arial_not found" << std::endl;; 
+  }
+  fpsText.setFont(font);
+  fpsText.setCharacterSize(20);
+  fpsText.setFillColor(sf::Color::White);
+  fpsText.setPosition(10.f, 10.f);
 }
 
 void FireworksApp::run()
@@ -13,6 +25,7 @@ void FireworksApp::run()
     processEvents();
     update();
     render();
+    updateFPS();  // Update FPS counter
   }
 }
 
@@ -54,5 +67,15 @@ void FireworksApp::render()
     particle.setPosition(firework.getPosition());
     window.draw(particle);
   }
+  window.draw(fpsText);  // Draw FPS counter
   window.display();
+}
+
+void FireworksApp::updateFPS()
+{
+  // Calculate FPS and update FPS text
+  float fps = 1.f / clock.restart().asSeconds();
+  std::stringstream ss;
+  ss << "FPS: " << static_cast<int>(fps);
+  fpsText.setString(ss.str());
 }

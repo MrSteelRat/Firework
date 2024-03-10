@@ -17,9 +17,14 @@ class FireworksApp
   sf::RenderWindow window;
   std::vector<Firework> fireworks;
 
+  sf::Clock clock;   // Add clock for measuring time
+  sf::Font font;     // Font for displaying FPS
+  sf::Text fpsText;  // Text for displaying FPS
+
   void processEvents();
   void update();
   void render();
+  void updateFPS();
 };
 
 #endif
