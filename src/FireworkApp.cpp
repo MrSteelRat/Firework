@@ -1,6 +1,9 @@
-#include <sstream>  // For string manipulation
-#include <iostream>
 #include "FireworkApp.h"
+
+#include <iostream>
+#include <sstream>  // For string manipulation
+
+#include "MenuWindow.h"
 
 FireworksApp::FireworksApp(int width, int height)
     : window(sf::VideoMode(width, height), "Fireworks")
@@ -10,7 +13,8 @@ FireworksApp::FireworksApp(int width, int height)
   // Load font for displaying FPS
   if (!font.loadFromFile("arial.ttf"))
   {
-    std::cerr << "Arial_not found" << std::endl;; 
+    std::cerr << "Arial_not found" << std::endl;
+    ;
   }
   fpsText.setFont(font);
   fpsText.setCharacterSize(20);
@@ -22,10 +26,23 @@ void FireworksApp::run()
 {
   while (window.isOpen())
   {
-    processEvents();
-    update();
-    render();
-    updateFPS();  // Update FPS counter
+    MenuWindow menu(window);
+    MenuWindow::MenuResult result = menu.show();
+
+    if (result == MenuWindow::MenuResult::Continue)
+    {
+      while (window.isOpen())  // Game loop
+      {
+        processEvents();
+        update();
+        render();
+        updateFPS();  
+      }
+    }
+    else if (result == MenuWindow::MenuResult::Exit)
+    {
+      window.close();
+    }
   }
 }
 
@@ -34,15 +51,37 @@ void FireworksApp::processEvents()
   sf::Event event;
   while (window.pollEvent(event))
   {
-    if (event.type == sf::Event::Closed) window.close();
-
-    if (event.type == sf::Event::MouseButtonPressed &&
-        event.mouseButton.button == sf::Mouse::Left)
+    if (event.type == sf::Event::Closed)
     {
-      fireworks.push_back(Firework(event.mouseButton.x, event.mouseButton.y));
+      window.close();
+    }
+    else if (event.type == sf::Event::MouseButtonPressed)
+    {
+      if (event.mouseButton.button == sf::Mouse::Left)
+      {
+        fireworks.push_back(Firework(event.mouseButton.x, event.mouseButton.y));
+      }
+    }
+    else if (event.type == sf::Event::KeyPressed)
+    {
+      if (event.key.code == sf::Keyboard::Escape)
+      {
+        MenuWindow menu(window);
+        MenuWindow::MenuResult result = menu.show();
+
+        if (result == MenuWindow::MenuResult::Continue)
+        {
+          // Continue game
+        }
+        else if (result == MenuWindow::MenuResult::Exit)
+        {
+          window.close();
+        }
+      }
     }
   }
 }
+
 
 void FireworksApp::update()
 {
