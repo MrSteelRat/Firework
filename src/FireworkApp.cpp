@@ -6,7 +6,9 @@
 #include "MenuWindow.h"
 
 FireworksApp::FireworksApp(int width, int height)
-    : window(sf::VideoMode(width, height), "Fireworks")
+    : window(sf::VideoMode(width, height), "Fireworks"),
+      particleCount(0),
+      fireworkCount(0)
 {
   window.setFramerateLimit(60);
 
@@ -16,10 +18,23 @@ FireworksApp::FireworksApp(int width, int height)
     std::cerr << "Arial_not found" << std::endl;
     ;
   }
+  // Set up FPS text
   fpsText.setFont(font);
   fpsText.setCharacterSize(20);
   fpsText.setFillColor(sf::Color::White);
   fpsText.setPosition(10.f, 10.f);
+
+  // Set up particle count text
+  particleCountText.setFont(font);
+  particleCountText.setCharacterSize(20);
+  particleCountText.setFillColor(sf::Color::White);
+  particleCountText.setPosition(10.f, 40.f);
+
+  // Set up firework count text
+  fireworkCountText.setFont(font);
+  fireworkCountText.setCharacterSize(20);
+  fireworkCountText.setFillColor(sf::Color::White);
+  fireworkCountText.setPosition(10.f, 70.f);
 }
 
 void FireworksApp::run()
@@ -36,7 +51,7 @@ void FireworksApp::run()
         processEvents();
         update();
         render();
-        updateFPS();  
+        updateFPS();
       }
     }
     else if (result == MenuWindow::MenuResult::Exit)
@@ -60,6 +75,8 @@ void FireworksApp::processEvents()
       if (event.mouseButton.button == sf::Mouse::Left)
       {
         fireworks.push_back(Firework(event.mouseButton.x, event.mouseButton.y));
+        particleCount += 1;  // Increment particle count
+        fireworkCount += 1;  // Increment firework count
       }
     }
     else if (event.type == sf::Event::KeyPressed)
@@ -82,12 +99,11 @@ void FireworksApp::processEvents()
   }
 }
 
-
 void FireworksApp::update()
 {
   for (size_t i = 0; i < fireworks.size(); ++i)
   {
-    fireworks[i].update();
+    fireworks[i].update();  // Correct usage: No arguments should be passed
     if (!fireworks[i].isAlive())
     {
       fireworks.erase(fireworks.begin() + i);
@@ -106,7 +122,15 @@ void FireworksApp::render()
     particle.setPosition(firework.getPosition());
     window.draw(particle);
   }
-  window.draw(fpsText);  // Draw FPS counter
+  window.draw(fpsText);               // Draw FPS counter
+  std::stringstream particleCountSS;  // Draw particle count
+  particleCountSS << "Particles: " << particleCount;
+  particleCountText.setString(particleCountSS.str());
+  window.draw(particleCountText);  // Draw firework count
+  std::stringstream fireworkCountSS;
+  fireworkCountSS << "Fireworks: " << fireworkCount;
+  fireworkCountText.setString(fireworkCountSS.str());
+  window.draw(fireworkCountText);
   window.display();
 }
 
